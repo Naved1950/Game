@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moving Ball Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            border: 3.9px solid #333; /* Dark color frame */
+            background-image: url('gur.jpg'); /* Ensure the image path is correct */
+            background-repeat: no-repeat; /* Prevent the background image from repeating */
+            background-size: cover; /* Scale the image to cover the entire container */
+            background-position: center; /* Center the image within the container */
+        }
+        #player-name-container {
+            width: 100%; /* Set to 100% of parent width */
+            max-width: 400px; /* Set a maximum width for better responsiveness */
+            margin-bottom: 20px; /* Add some margin for spacing */
+            text-align: center; /* Center the input container */
+        }
+
+        #player-name {
+            width: 60%; /* Full width of the container */
+            height: 29px; /* Increased height */
+            font-size: 18px; /* Increased font size */
+            padding: 10px; /* Added padding for better spacing */
+            border: 2px solid #333; /* Border color */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Added shadow for depth */
+            outline: none; /* Remove default outline */
+        }
+
+        #player-name:focus {
+            border-color: #28a745; /* Change border color on focus */
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Add shadow on focus */
+        }
+
+        #player-name-container {
+            width: 100%; /* Set to 100% of parent width */
+            max-width: 400px; /* Set a maximum width for better responsiveness */
+            margin-bottom: 0px; /* Add some margin for spacing */
+        }
+
+        #welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            width: 1000px;
+            height: 300px;
+            background-image: url('robin.jpg'); /* Ensure the image path is correct */
+            background-repeat: no-repeat; /* Prevent the background image from repeating */
+            background-size: cover; /* Scale the image to cover the entire container */
+            background-position: center; /* Center the image within the container */
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: white; /* Change text color to white */
+        }
+
+        #game-container {
+            display: none; /* Initially hidden */
+            position: relative;
+            width: 800px; /* Increased width */
+            height: 440px; /* Increased height */
+            border: 2px solid #333;
+            overflow: hidden;
+            background-image: url('45k.jpg'); /* Ensure the image path is correct */
+            background-repeat: no-repeat; /* Prevent the background image from repeating */
+            background-size: cover; /* Scale the image to cover the entire container */
+            background-position: center; /* Center the image within the container */
+            margin-top: 5px; /* Space between score/timer and game box */
+            text-align: center; /* Center text in game box */
+            color: white; /* Change text color to white */
+            border-radius: 18px;
+        }
+
+        #score, #time, #result {
+            margin: 5px;
+            font-size: 20px;
+            color: white; /* Change text color to white for score and time */
+        }
+
+        #result {
+            color: black; /* Change text color to black for result */
+        }
+
+        #ball {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgb(13, 13, 59);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+
+        #footer {
+    background-color: #d4edda; /* Light green background color */
+    color: #333; /* Text color */
+    text-align: right; /* Align the text to the right */
+    padding: 5px 20px; /* Padding for spacing */
+    position: fixed; /* Fix the footer to the bottom */
+    bottom: 0; /* Align to the bottom */
+    right: 0; /* Align to the right */
+    width: auto; /* Auto width to fit content */
+    font-size: 14px; /* Smaller font size */
+    border-top-left-radius: 10px; /* Rounded corners */
+    border-top-right-radius: 10px; /* Rounded corners */
+    margin: 10px; /* Space from the edges */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+}
+
+        #agree-container {
+            margin-top: 20px;
+            color: white; /* Change text color to white for agreement text */
+        }
+
+        #start-button, #start-game-button, #play-again-button {
+            background-color: #28a745;
+            color: white; /* Button text color remains white */
+            border: none;
+            padding: 20px 40px; /* Larger padding */
+            font-size: 20px; /* Larger font size */
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px; /* Add some margin for buttons */
+            width: 250px; /* Set a fixed width */
+            height: 60px; /* Set a fixed height */
+}
+
+        #score-timer-container {
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            align-items: center; /* Center items horizontally */
+            width: 500px; /* Match game container width */
+            margin-bottom: 10px; /* Space below score and timer */
+        }
+
+        #sound-toggle-button {
+            position: absolute; /* Make it float over the whole page */
+            top: 20px; /* Adjust position from the top */
+            right: 20px; /* Adjust position from the right */
+            background: none; /* No background */
+            border: none; /* No border */
+            cursor: pointer; /* Pointer cursor on hover */
+            z-index: 10; /* Ensure it is on top of other elements */
+        }
+
+        #sound-toggle-button img {
+            width: 90px; /* Width of the sound icon */
+            height: 90px; /* Height of the sound icon */
+        }
+    </style>
+</head>
+<body>
+    <audio id="game-music" src="gamesound.mp3" loop autoplay></audio> <!-- Ensure the path is correct -->
+
+    <button id="sound-toggle-button" aria-label="Toggle Sound"> 
+        <img src="silent.jpg" alt="Sound On" id="sound-icon"> <!-- Placeholder for sound on icon -->
+        <img src="music.jpg" alt="Sound Off" id="sound-icon-off" style="display:none;"> <!-- Placeholder for sound off icon -->
+    </button>
+
+    <div id="welcome-screen">
+        <div id="welcome-message">
+            <h1>Welcome to The Moving Ball Game</h1>
+            <h3>Please be careful and responsible while playing the game.</h3>
+        </div>
+        <div id="player-name-container">
+            <input type="text" id="player-name" placeholder="Enter your name" />
+        </div>
+        <div id="agree-container">
+            <input type="checkbox" id="agree-checkbox"> I agree.<br><br>
+            <button id="ok-button">Start</button>
+        </div>
+    </div>
+
+    <!-- Score and Timer Container -->
+    <div id="score-timer-container" style="display: none;">
+        <button id="start-game-button">Start the Game</button>
+        <div id="score">Score: 0</div>
+        <div id="time">Time: 20</div>
+    </div>
+
+    <div id="game-container">
+        <div id="ball"></div>
+        <div id="result" style="display: none;"></div> <!-- Container for results -->
+        <button id="play-again-button" style="display: none;">Play Again</button> <!-- Add a play again button -->
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 20;
+        let ballInterval;
+        let countdown;
+        let isMusicPlaying = true; // Start with music playing
+
+        const ball = document.getElementById('ball');
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const gameContainer = document.getElementById('game-container');
+        const okButton = document.getElementById('ok-button');
+        const agreeCheckbox = document.getElementById('agree-checkbox');
+        const startGameButton = document.getElementById('start-game-button');
+        const playerNameInput = document.getElementById('player-name');
+        const scoreTimerContainer = document.getElementById('score-timer-container');
+        const resultDisplay = document.getElementById('result');
+        const playAgainButton = document.getElementById('play-again-button'); // Get the play again button
+        const gameMusic = document.getElementById('game-music');
+        const soundToggleButton = document.getElementById('sound-toggle-button');
+        const soundIcon = document.getElementById('sound-icon');
+        const soundIconOff = document.getElementById('sound-icon-off');
+
+        // Show the welcome screen initially
+        welcomeScreen.style.display = 'flex';
+
+        okButton.addEventListener('click', () => {
+            if (agreeCheckbox.checked && playerNameInput.value.trim() !== "") {
+                welcomeScreen.style.display = 'none'; // Hide welcome screen
+                scoreTimerContainer.style.display = 'flex'; // Show score and timer container
+                gameContainer.style.display = 'block'; // Show game container
+            } else {
+                alert("Please agree to the terms and enter your name before starting the game.");
+            }
+        });
+
+        startGameButton.addEventListener('click', () => {
+            startGameButton.textContent = "Started..."; // Change the text of the start button
+            startGame();
+        });
+
+        soundToggleButton.addEventListener('click', () => {
+            toggleSound();
+        });
+
+        function toggleSound() {
+            if (isMusicPlaying) {
+                gameMusic.pause();
+                soundIcon.style.display = 'none'; // Hide the sound on icon
+                soundIconOff.style.display = 'block'; // Show the sound off icon
+            } else {
+                gameMusic.play();
+                soundIcon.style.display = 'block'; // Show the sound on icon
+                soundIconOff.style.display = 'none'; // Hide the sound off icon
+            }
+            isMusicPlaying = !isMusicPlaying; // Toggle the state
+        }
+
+        function startGame() {
+            // Reset score and time
+            score = 0;
+            timeLeft = 20;
+            scoreDisplay.textContent = `Score: ${score}`;
+            timeDisplay.textContent = `Time: ${timeLeft}`;
+            resultDisplay.style.display = ' none'; // Hide result display
+            playAgainButton.style.display = 'none'; // Hide play again button
+
+            // Start the countdown
+            countdown = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = `Time: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    clearInterval(ballInterval);
+                    displayResults(); // Display results at the end of the game
+                }
+            }, 1000);
+
+            // Start moving the ball
+            ballInterval = setInterval(moveBall, 1000); // Decreased speed of ball movement
+        }
+
+        function moveBall() {
+            const container = document.getElementById('game-container');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+
+            const x = Math.random() * (containerWidth - 30); // 30 is the width of the ball
+            const y = Math.random() * (containerHeight - 30); // 30 is the height of the ball
+
+            ball.style.left = `${x}px`;
+            ball.style.top = `${y}px`;
+        }
+
+        ball.addEventListener('click', () => {
+            score++;
+            scoreDisplay.textContent = `Score: ${score}`;
+        });
+
+        function displayResults() {
+            // Calculate attention rate
+            let attentionRate = (score / 20) * 100; // Assuming 20 is the max score
+            resultDisplay.textContent = `Game Over! Your score is: ${score}. Attention Rate: ${attentionRate.toFixed(2)}%`;
+            resultDisplay.style.display = 'block'; // Show results in game box
+            playAgainButton.style.display = 'block'; // Show play again button
+        }
+
+        playAgainButton.addEventListener('click', () => {
+            startGame(); // Restart the game
+        });
+    </script>
+    <footer id="footer">
+        Developed By - Krishna Gupta & Naved Khan
+    </footer>
+</body>
+</html>
